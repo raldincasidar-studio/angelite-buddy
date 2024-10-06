@@ -25,7 +25,7 @@
         <v-container>
             <h2 class="text-center ma-5">Our Interest</h2>
             <div class="ma-3 my-5 mb-10">
-              <v-chip v-for="(interest, index) in users[0].interests" :key="index" class="ma-1">{{ interest }}</v-chip>
+              <v-chip v-for="(interest, index) in users[0].interests" :key="index" class="ma-1">{{ interest }} ({{ users[0].eloRatings[interest] }})</v-chip>
             </div>
             <h2 class="text-center ma-5">Find your Match</h2>
             <v-card v-if="userRecommended">
@@ -40,7 +40,7 @@
                 <v-card-title class="text-white">{{ userRecommended.name }}</v-card-title>
                 </v-img>
                 <div class="pa-3 text-center">
-                    <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }}</v-chip>
+                    <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }} ({{ userRecommended.eloRatings[interest] }})</v-chip>
                 </div>
                 <v-card-actions>
                 <v-spacer></v-spacer>
@@ -96,8 +96,13 @@ const users = ref([
     age: 25,
     gender: "female",
     location: "New York",
-    interests: ["reading", "cooking", "hiking", "music"],
-    eloRating: 1200,
+    interests: ["hiking", "cooking", "reading", "traveling"],
+    eloRatings: {
+      hiking: 1200,
+      cooking: 1150,
+      reading: 1180,
+      traveling: 1220,
+    },
     likedBy: [2, 3], // John and Emily liked Alice
     dislikedBy: [4], // Michael disliked Alice
     rated: [2, 3, 4] // Alice has rated John, Emily, and Michael
@@ -109,7 +114,12 @@ const users = ref([
     gender: "male",
     location: "Los Angeles",
     interests: ["gaming", "traveling", "movies", "basketball"],
-    eloRating: 1250,
+    eloRatings: {
+      gaming: 1250,
+      traveling: 1280,
+      movies: 1220,
+      basketball: 1260,
+    },
     likedBy: [1], // Alice liked John
     dislikedBy: [], // No one disliked John yet
     rated: [1] // John has rated Alice
@@ -121,8 +131,13 @@ const users = ref([
     gender: "female",
     location: "Chicago",
     interests: ["photography", "painting", "yoga", "dancing"],
-    eloRating: 1150,
-    likedBy: [], // No one liked Emily yet
+    eloRatings: {
+      photography: 1150,
+      painting: 1180,
+      yoga: 1200,
+      dancing: 1190,
+    },
+    likedBy: [],
     dislikedBy: [1], // Alice disliked Emily
     rated: [1] // Emily has rated Alice
   },
@@ -133,7 +148,12 @@ const users = ref([
     gender: "male",
     location: "San Francisco",
     interests: ["coding", "gaming", "music", "cycling"],
-    eloRating: 1300,
+    eloRatings: {
+      coding: 1300,
+      gaming: 1260,
+      music: 1220,
+      cycling: 1250,
+    },
     likedBy: [5], // Jessica liked Michael
     dislikedBy: [1], // Alice disliked Michael
     rated: [1, 5] // Michael has rated Alice and Jessica
@@ -145,8 +165,13 @@ const users = ref([
     gender: "female",
     location: "Boston",
     interests: ["fashion", "makeup", "music", "dancing"],
-    eloRating: 1180,
-    likedBy: [], // No one liked Jessica yet
+    eloRatings: {
+      fashion: 1180,
+      makeup: 1150,
+      music: 1200,
+      dancing: 1190,
+    },
+    likedBy: [],
     dislikedBy: [4], // Michael disliked Jessica
     rated: [4] // Jessica has rated Michael
   },
@@ -157,10 +182,15 @@ const users = ref([
     gender: "male",
     location: "Austin",
     interests: ["fitness", "cooking", "hiking", "traveling"],
-    eloRating: 1240,
-    likedBy: [], // No one liked David yet
-    dislikedBy: [], // No one disliked David yet
-    rated: [] // David hasn't rated anyone yet
+    eloRatings: {
+      fitness: 1240,
+      cooking: 1210,
+      hiking: 1200,
+      traveling: 1225,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
   },
   {
     id: 7,
@@ -169,10 +199,15 @@ const users = ref([
     gender: "female",
     location: "Seattle",
     interests: ["surfing", "photography", "baking", "reading"],
-    eloRating: 1220,
-    likedBy: [], // No one liked Sophia yet
-    dislikedBy: [], // No one disliked Sophia yet
-    rated: [] // Sophia hasn't rated anyone yet
+    eloRatings: {
+      surfing: 1220,
+      photography: 1150,
+      baking: 1190,
+      reading: 1175,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
   },
   {
     id: 8,
@@ -181,10 +216,15 @@ const users = ref([
     gender: "male",
     location: "Miami",
     interests: ["swimming", "fitness", "yoga", "surfing"],
-    eloRating: 1270,
-    likedBy: [], // No one liked James yet
-    dislikedBy: [], // No one disliked James yet
-    rated: [] // James hasn't rated anyone yet
+    eloRatings: {
+      swimming: 1270,
+      fitness: 1250,
+      yoga: 1200,
+      surfing: 1235,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
   },
   {
     id: 9,
@@ -193,10 +233,15 @@ const users = ref([
     gender: "female",
     location: "San Diego",
     interests: ["skateboarding", "music", "movies", "writing"],
-    eloRating: 1190,
-    likedBy: [], // No one liked Olivia yet
-    dislikedBy: [], // No one disliked Olivia yet
-    rated: [] // Olivia hasn't rated anyone yet
+    eloRatings: {
+      skateboarding: 1190,
+      music: 1200,
+      movies: 1180,
+      writing: 1150,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
   },
   {
     id: 10,
@@ -205,12 +250,98 @@ const users = ref([
     gender: "male",
     location: "Dallas",
     interests: ["golf", "traveling", "football", "cooking"],
-    eloRating: 1290,
-    likedBy: [], // No one liked Chris yet
-    dislikedBy: [], // No one disliked Chris yet
-    rated: [] // Chris hasn't rated anyone yet
+    eloRatings: {
+      golf: 1290,
+      traveling: 1265,
+      football: 1240,
+      cooking: 1225,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
+  },
+  {
+    id: 11,
+    name: "Liam Thompson",
+    age: 23,
+    gender: "male",
+    location: "Atlanta",
+    interests: ["running", "gaming", "music"],
+    eloRatings: {
+      running: 1185,
+      gaming: 1235,
+      music: 1210,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
+  },
+  {
+    id: 12,
+    name: "Isabella Garcia",
+    age: 29,
+    gender: "female",
+    location: "Phoenix",
+    interests: ["hiking", "cooking", "traveling"],
+    eloRatings: {
+      hiking: 1200,
+      cooking: 1225,
+      traveling: 1210,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
+  },
+  {
+    id: 13,
+    name: "Noah Johnson",
+    age: 34,
+    gender: "male",
+    location: "Denver",
+    interests: ["photography", "skiing", "biking"],
+    eloRatings: {
+      photography: 1245,
+      skiing: 1290,
+      biking: 1230,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
+  },
+  {
+    id: 14,
+    name: "Emma Robinson",
+    age: 26,
+    gender: "female",
+    location: "Portland",
+    interests: ["yoga", "dancing", "traveling"],
+    eloRatings: {
+      yoga: 1195,
+      dancing: 1215,
+      traveling: 1220,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
+  },
+  {
+    id: 15,
+    name: "Oliver Martinez",
+    age: 30,
+    gender: "male",
+    location: "Baltimore",
+    interests: ["running", "music", "coding"],
+    eloRatings: {
+      running: 1225,
+      music: 1240,
+      coding: 1200,
+    },
+    likedBy: [],
+    dislikedBy: [],
+    rated: []
   }
 ]);
+
 
 const userRecommended = ref({});
 
@@ -232,31 +363,26 @@ function cosineSimilarity(user1, user2) {
 
 // Function to recommend the best match for a target user
 function recommendUser(targetUserId) {
-
     const users2 = users.value;
-
     const targetUser = users2.find(user => user.id === targetUserId);
-
+    
     let bestMatch = null;
     let bestScore = -Infinity;
 
-    
-
+    // Loop through all users to find the best match
     users2.forEach(user => {
+        // Skip the target user and already rated users
+        if (user.id !== targetUserId && !targetUser.rated.includes(user.id)) {
+            // Initialize score for this user
+            let score = 0;
 
-      console.log(targetUser.rated, user.id, user.name)
-
-      if (targetUser.rated.includes(user.id)) {
-        console.log('oops');
-        return;
-      }
-
-        if (user.id !== targetUserId) {
-            // Calculate similarity based on interests
-            const similarity = cosineSimilarity(targetUser, user);
-
-            // Weight the similarity by ELO rating (higher rating means better match)
-            const score = similarity * (user.eloRating / 1000); // ELO is normalized by dividing by 1000
+            // Calculate the score based on shared interests
+            targetUser.interests.forEach(interest => {
+                if (user.interests.includes(interest)) {
+                    // Increase the score by the Elo rating for the shared interest
+                    score += user.eloRatings[interest] / 1000; // Normalize by dividing by 1000
+                }
+            });
 
             // Find the user with the highest score
             if (score > bestScore) {
@@ -268,7 +394,6 @@ function recommendUser(targetUserId) {
 
     console.log(bestMatch);
     return bestMatch;
-
 }
 
 // Function to calculate the new ELO rating
@@ -281,76 +406,45 @@ function calculateNewEloRating(userRating, opponentRating, score, K = 32) {
 // Function to like or dislike a user and update ELO ratings
 // Function to like or dislike a user and update ELO ratings
 function rateUser(targetUserId, ratedUserId, action) {
+    const targetUser = users.value.find(user => user.id === targetUserId);
+    const ratedUser = users.value.find(user => user.id === ratedUserId);
 
-    // console.log(ratedUserId);
-
-    // Get the index of the target and rated users
-    const targetUserIndex = users.value.findIndex(user => user.id === targetUserId);
-    const ratedUserIndex = users.value.findIndex(user => user.id === ratedUserId);
-
-    if (targetUserIndex === -1 || ratedUserIndex === -1) {
-        console.log("Invalid users.");
+    if (!targetUser || !ratedUser || targetUser.rated.includes(ratedUserId)) {
+        console.log("Rating already done or invalid users.");
         return;
     }
 
-    const targetUser = { ...users.value[targetUserIndex] }; // Clone the user to maintain reactivity
-    const ratedUser = { ...users.value[ratedUserIndex] }; // Clone the user to maintain reactivity
+    // Find common interests between the target user and the rated user
+    const commonInterests = targetUser.interests.filter(interest => ratedUser.interests.includes(interest));
 
-    // Check if targetUser already rated the ratedUser
-    if (targetUser.rated.includes(ratedUserId)) {
-        console.log("Rating already done.");
-        return;
-    }
-
-    // Update liked or disliked based on the action
     if (action === "like") {
         ratedUser.likedBy.push(targetUserId);
         console.log(`${targetUser.name} liked ${ratedUser.name}`);
-        
-        // Both users get an ELO update (S = 1 for a like)
-        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 0);
-        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 1);
 
-        // Update ELO ratings
-        targetUser.eloRating = newTargetElo;
-        ratedUser.eloRating = newRatedElo;
+        // Update Elo ratings for the rated user for each similar interest
+        commonInterests.forEach(interest => {
+            // Update Elo ratings for the rated user
+            const newRatedElo = calculateNewEloRating(ratedUser.eloRatings[interest], targetUser.eloRatings[interest], 1);
+            ratedUser.eloRatings[interest] = newRatedElo;
+
+            // Log the updated Elo rating for the rated user
+            console.log(`${ratedUser.name}'s new ELO rating for ${interest}:`, newRatedElo);
+        });
 
     } else if (action === "dislike") {
         ratedUser.dislikedBy.push(targetUserId);
         console.log(`${targetUser.name} disliked ${ratedUser.name}`);
-        
-        // Both users get an ELO update (S = 0 for a dislike)
-        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 1);
-        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 0);
 
-        // Update ELO ratings
-        targetUser.eloRating = newTargetElo;
-        ratedUser.eloRating = newRatedElo;
+        // Do nothing for the rated user's Elo ratings
     }
 
     // Mark the rated user in the target user's rated list
     targetUser.rated.push(ratedUserId);
 
-    // Update the users array reactively
-    users.value[targetUserIndex] = targetUser;  // Vue will track this change
-    users.value[ratedUserIndex] = ratedUser;    // Vue will track this change
-
-    // Log the updated ELO ratings
-    console.log(`${targetUser.name}'s new ELO rating: ${targetUser.eloRating}`);
-    console.log(`${ratedUser.name}'s new ELO rating: ${ratedUser.eloRating}`);
-
-    // Recommend new user after rating
+    // Recommend a new user
     userRecommended.value = recommendUser(targetUserId);
-
-    // users.value = users.value.map(user => {
-    //     if (user.id === targetUserId) {
-    //         return { ...user, rated: [...user.rated, ratedUserId] };
-    //     }
-
-    //     console.log(user);
-    //     return user;
-    // });
 }
+
 
 
 function logout() {
