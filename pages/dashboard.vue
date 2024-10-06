@@ -20,38 +20,36 @@
         </v-list>
       </v-navigation-drawer>
 
-      <v-main style="height: 500px;">
+      <v-main>
         
         <v-container>
             <h2 class="text-center ma-5">Find your Match</h2>
-            {{ recommendUser(1, users) }}
-            <v-card>
+            <v-card v-if="userRecommended">
                 <v-img
-                src="https://picsum.photos/400"
+                :src="`https://picsum.photos/id/${userRecommended.id}/200/300`"
                 class="align-end"
                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                 height="400px"
                 cover
                 >
-                <v-card-subtitle class="text-white">17, Male</v-card-subtitle>
-                <v-card-title class="text-white">Alden Richards</v-card-title>
+                <v-card-subtitle class="text-white">{{ userRecommended.age }}, {{ userRecommended.gender }}</v-card-subtitle>
+                <v-card-title class="text-white">{{ userRecommended.name }}</v-card-title>
                 </v-img>
                 <div class="pa-3 text-center">
-                    <v-chip class="ma-1">Gaming</v-chip>
-                    <v-chip class="ma-1">Programming</v-chip>
-                    <v-chip class="ma-1">Music</v-chip>
-                    <v-chip class="ma-1">Sports</v-chip>
+                    <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }}</v-chip>
                 </div>
                 <v-card-actions>
                 <v-spacer></v-spacer>
 
                 <v-btn
+                    @click="rateUser(1, userRecommended.id, 'dislike')"
                     color="black"
                     icon="mdi-close"
                     size="large"
                 ></v-btn>
 
                 <v-btn
+                    @click="rateUser(1, userRecommended.id, users, 'like')"
                     color="pink"
                     icon="mdi-heart"
                     size="large"
@@ -59,6 +57,11 @@
                 <v-spacer></v-spacer>
                 </v-card-actions>
             </v-card>
+            <div class="ma-4 my-10 text-center" v-else>
+              <v-icon size="100" color="grey">mdi-account-heart</v-icon>
+              <h3 class="text-grey">No other users</h3>
+            </div>
+            <pre>{{ users }}</pre>
         </v-container>
       </v-main>
     </v-layout>
@@ -205,6 +208,12 @@ const users = ref([
   }
 ]);
 
+const userRecommended = ref({});
+
+onMounted( async () => {
+  userRecommended.value = recommendUser(1, users.value);
+} )
+
 // Cosine similarity function based on interests
 function cosineSimilarity(user1, user2) {
     const user1Interests = user1.interests;
@@ -218,13 +227,26 @@ function cosineSimilarity(user1, user2) {
 }
 
 // Function to recommend the best match for a target user
-function recommendUser(targetUserId, users) {
-    const targetUser = users.find(user => user.id === targetUserId);
+function recommendUser(targetUserId) {
+
+    const users2 = users.value;
+
+    const targetUser = users2.find(user => user.id === targetUserId);
 
     let bestMatch = null;
     let bestScore = -Infinity;
 
-    users.forEach(user => {
+    
+
+    users2.forEach(user => {
+
+      console.log(targetUser.rated, user.id, user.name)
+
+      if (targetUser.rated.includes(user.id)) {
+        console.log('oops');
+        return;
+      }
+
         if (user.id !== targetUserId) {
             // Calculate similarity based on interests
             const similarity = cosineSimilarity(targetUser, user);
@@ -240,8 +262,92 @@ function recommendUser(targetUserId, users) {
         }
     });
 
+    console.log(bestMatch);
     return bestMatch;
+
 }
+
+// Function to calculate the new ELO rating
+function calculateNewEloRating(userRating, opponentRating, score, K = 32) {
+    const expectedScore = 1 / (1 + Math.pow(10, (opponentRating - userRating) / 400));
+    const newRating = userRating + K * (score - expectedScore);
+    return Math.round(newRating); // Round the result to keep it clean
+}
+
+// Function to like or dislike a user and update ELO ratings
+// Function to like or dislike a user and update ELO ratings
+function rateUser(targetUserId, ratedUserId, action) {
+
+    // console.log(ratedUserId);
+
+    // Get the index of the target and rated users
+    const targetUserIndex = users.value.findIndex(user => user.id === targetUserId);
+    const ratedUserIndex = users.value.findIndex(user => user.id === ratedUserId);
+
+    if (targetUserIndex === -1 || ratedUserIndex === -1) {
+        console.log("Invalid users.");
+        return;
+    }
+
+    const targetUser = { ...users.value[targetUserIndex] }; // Clone the user to maintain reactivity
+    const ratedUser = { ...users.value[ratedUserIndex] }; // Clone the user to maintain reactivity
+
+    // Check if targetUser already rated the ratedUser
+    if (targetUser.rated.includes(ratedUserId)) {
+        console.log("Rating already done.");
+        return;
+    }
+
+    // Update liked or disliked based on the action
+    if (action === "like") {
+        ratedUser.likedBy.push(targetUserId);
+        console.log(`${targetUser.name} liked ${ratedUser.name}`);
+        
+        // Both users get an ELO update (S = 1 for a like)
+        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 1);
+        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 0);
+
+        // Update ELO ratings
+        targetUser.eloRating = newTargetElo;
+        ratedUser.eloRating = newRatedElo;
+
+    } else if (action === "dislike") {
+        ratedUser.dislikedBy.push(targetUserId);
+        console.log(`${targetUser.name} disliked ${ratedUser.name}`);
+        
+        // Both users get an ELO update (S = 0 for a dislike)
+        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 0);
+        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 1);
+
+        // Update ELO ratings
+        targetUser.eloRating = newTargetElo;
+        ratedUser.eloRating = newRatedElo;
+    }
+
+    // Mark the rated user in the target user's rated list
+    targetUser.rated.push(ratedUserId);
+
+    // Update the users array reactively
+    users.value[targetUserIndex] = targetUser;  // Vue will track this change
+    users.value[ratedUserIndex] = ratedUser;    // Vue will track this change
+
+    // Log the updated ELO ratings
+    console.log(`${targetUser.name}'s new ELO rating: ${targetUser.eloRating}`);
+    console.log(`${ratedUser.name}'s new ELO rating: ${ratedUser.eloRating}`);
+
+    // Recommend new user after rating
+    userRecommended.value = recommendUser(targetUserId);
+
+    // users.value = users.value.map(user => {
+    //     if (user.id === targetUserId) {
+    //         return { ...user, rated: [...user.rated, ratedUserId] };
+    //     }
+
+    //     console.log(user);
+    //     return user;
+    // });
+}
+
 
 function logout() {
     const router = useRouter();
