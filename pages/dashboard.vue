@@ -25,7 +25,7 @@
         <v-container>
             <h2 class="text-center ma-5">Our Interest</h2>
             <div class="ma-3 my-5 mb-10">
-              <v-chip v-for="(interest, index) in users[0].interests" :key="index" class="ma-1">{{ interest }} ({{ users[0].eloRatings[interest] }})</v-chip>
+              <v-chip v-for="(interest, index) in users[0].interests" :key="index" class="ma-1">{{ interest }} ({{ users[0].eloRatings[interest] }} elo)</v-chip>
             </div>
             <h2 class="text-center ma-5">Find your Match</h2>
             <v-card v-if="userRecommended">
@@ -40,7 +40,7 @@
                 <v-card-title class="text-white">{{ userRecommended.name }}</v-card-title>
                 </v-img>
                 <div class="pa-3 text-center">
-                    <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }} ({{ userRecommended.eloRatings[interest] }})</v-chip>
+                    <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }} ({{ userRecommended.eloRatings[interest] }} elo)</v-chip>
                 </div>
                 <v-card-actions>
                 <v-spacer></v-spacer>
@@ -53,7 +53,7 @@
                 ></v-btn>
 
                 <v-btn
-                    @click="rateUser(1, userRecommended.id, users, 'like')"
+                    @click="rateUser(1, userRecommended.id, 'like')"
                     color="pink"
                     icon="mdi-heart"
                     size="large"
@@ -364,84 +364,127 @@ function cosineSimilarity(user1, user2) {
 // Function to recommend the best match for a target user
 function recommendUser(targetUserId) {
     const users2 = users.value;
+
+    // Find the target user
     const targetUser = users2.find(user => user.id === targetUserId);
-    
+    if (!targetUser) return null;
+
+    // Step 1: Sort target user's interests based on their Elo ratings (highest first)
+    const sortedInterests = Object.keys(targetUser.eloRatings)
+        .filter(interest => targetUser.eloRatings[interest] !== undefined)
+        .sort((a, b) => targetUser.eloRatings[b] - targetUser.eloRatings[a]);
+
     let bestMatch = null;
     let bestScore = -Infinity;
 
-    // Loop through all users to find the best match
+    // Step 2: Iterate over all other users
     users2.forEach(user => {
-        // Skip the target user and already rated users
         if (user.id !== targetUserId && !targetUser.rated.includes(user.id)) {
-            // Initialize score for this user
-            let score = 0;
+            let similarityScore = 0;
 
-            // Calculate the score based on shared interests
-            targetUser.interests.forEach(interest => {
+            // Step 3: Give higher priority to users with similar interests and weight by Elo rating
+            sortedInterests.forEach(interest => {
                 if (user.interests.includes(interest)) {
-                    // Increase the score by the Elo rating for the shared interest
-                    score += user.eloRatings[interest] / 1000; // Normalize by dividing by 1000
+                    // Calculate similarity based on the Elo rating and common interest
+                    const targetUserElo = targetUser.eloRatings[interest] || 1200;
+                    const userElo = user.eloRatings[interest] || 1200;
+
+                    // Weight by interest Elo rating
+                    similarityScore += cosineSimilarity(targetUser, user) * (targetUserElo / 1000) * (userElo / 1000);
                 }
             });
 
-            // Find the user with the highest score
-            if (score > bestScore) {
-                bestScore = score;
+            // Step 4: Find the user with the highest score
+            if (similarityScore > bestScore) {
+                bestScore = similarityScore;
                 bestMatch = user;
             }
         }
     });
 
-    console.log(bestMatch);
     return bestMatch;
 }
 
 // Function to calculate the new ELO rating
+// function calculateNewEloRating(userRating, opponentRating, score, K = 32) {
+//     const expectedScore = 1 / (1 + Math.pow(10, (opponentRating - userRating) / 400));
+//     const newRating = userRating + K * (score - expectedScore);
+//     return Math.round(newRating); // Round the result to keep it clean
+// }
+
 function calculateNewEloRating(userRating, opponentRating, score, K = 32) {
     const expectedScore = 1 / (1 + Math.pow(10, (opponentRating - userRating) / 400));
     const newRating = userRating + K * (score - expectedScore);
-    return Math.round(newRating); // Round the result to keep it clean
+    return Math.round(newRating); // Round the result for cleaner values
 }
 
 // Function to like or dislike a user and update ELO ratings
 // Function to like or dislike a user and update ELO ratings
 function rateUser(targetUserId, ratedUserId, action) {
-    const targetUser = users.value.find(user => user.id === targetUserId);
-    const ratedUser = users.value.find(user => user.id === ratedUserId);
+    const users2 = users.value;
+
+    // Find target user and rated user
+    const targetUser = users2.find(user => user.id === targetUserId);
+    const ratedUser = users2.find(user => user.id === ratedUserId);
 
     if (!targetUser || !ratedUser || targetUser.rated.includes(ratedUserId)) {
         console.log("Rating already done or invalid users.");
         return;
     }
 
-    // Find common interests between the target user and the rated user
-    const commonInterests = targetUser.interests.filter(interest => ratedUser.interests.includes(interest));
-
     if (action === "like") {
+        // Step 1: Add ratedUser's interests to targetUser if not already present
+        ratedUser.interests.forEach(interest => {
+            if (!targetUser.interests.includes(interest)) {
+                targetUser.interests.push(interest);
+                // Step 2: Initialize the Elo rating for the new interest with 1200
+                if (!targetUser.eloRatings[interest]) {
+                    targetUser.eloRatings[interest] = 1200;
+                }
+            }
+        });
+
+        // Step 3: Update Elo ratings based on the "like"
         ratedUser.likedBy.push(targetUserId);
         console.log(`${targetUser.name} liked ${ratedUser.name}`);
-
-        // Update Elo ratings for the rated user for each similar interest
-        commonInterests.forEach(interest => {
-            // Update Elo ratings for the rated user
-            const newRatedElo = calculateNewEloRating(ratedUser.eloRatings[interest], targetUser.eloRatings[interest], 1);
-            ratedUser.eloRatings[interest] = newRatedElo;
-
-            // Log the updated Elo rating for the rated user
-            console.log(`${ratedUser.name}'s new ELO rating for ${interest}:`, newRatedElo);
+        
+        // Update Elo for targetUser, increasing the Elo rating by using the formula
+        ratedUser.interests.forEach(interest => {
+            if (targetUser.eloRatings[interest]) {
+                const newElo = calculateNewEloRating(
+                    targetUser.eloRatings[interest], 
+                    ratedUser.eloRatings[interest] || 1200, 
+                    1 // Liking gives a positive score
+                );
+                targetUser.eloRatings[interest] = newElo;
+            }
         });
 
     } else if (action === "dislike") {
+        // Handle the "dislike" action but without copying interests
         ratedUser.dislikedBy.push(targetUserId);
         console.log(`${targetUser.name} disliked ${ratedUser.name}`);
-
-        // Do nothing for the rated user's Elo ratings
+        
+        // Update Elo for targetUser, decreasing the Elo rating by using the formula
+        ratedUser.interests.forEach(interest => {
+            if (targetUser.eloRatings[interest]) {
+                const newElo = calculateNewEloRating(
+                    targetUser.eloRatings[interest], 
+                    ratedUser.eloRatings[interest] || 1200, 
+                    0 // Disliking gives a neutral score, or 0
+                );
+                targetUser.eloRatings[interest] = newElo;
+            }
+        });
     }
 
     // Mark the rated user in the target user's rated list
     targetUser.rated.push(ratedUserId);
 
-    // Recommend a new user
+    console.log(`${targetUser.name}'s updated interests:`, targetUser.interests);
+    console.log(`${targetUser.name}'s new ELO ratings:`, targetUser.eloRatings);
+    
+    // Recommend a new user after the rating
     userRecommended.value = recommendUser(targetUserId);
 }
 
