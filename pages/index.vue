@@ -31,7 +31,12 @@ const password = ref('');
 
 async function login() {
 
-    router.replace('/dashboard');
+    if (username.value == "admin" && password.value == "admin") {
+        router.replace('/dashboard');
+        return;
+    }
+
+    alert("Invalid username or password");
 }
 
 </script>

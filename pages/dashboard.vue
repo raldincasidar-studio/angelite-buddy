@@ -23,6 +23,10 @@
       <v-main>
         
         <v-container>
+            <h2 class="text-center ma-5">Our Interest</h2>
+            <div class="ma-3 my-5 mb-10">
+              <v-chip v-for="(interest, index) in users[0].interests" :key="index" class="ma-1">{{ interest }}</v-chip>
+            </div>
             <h2 class="text-center ma-5">Find your Match</h2>
             <v-card v-if="userRecommended">
                 <v-img
@@ -92,7 +96,7 @@ const users = ref([
     age: 25,
     gender: "female",
     location: "New York",
-    interests: ["hiking", "cooking", "reading", "traveling"],
+    interests: ["reading", "cooking", "hiking", "music"],
     eloRating: 1200,
     likedBy: [2, 3], // John and Emily liked Alice
     dislikedBy: [4], // Michael disliked Alice
@@ -214,7 +218,7 @@ onMounted( async () => {
   userRecommended.value = recommendUser(1, users.value);
 } )
 
-// Cosine similarity function based on interests
+// Cosine similarity function based on interests (Collaborative Filtering)
 function cosineSimilarity(user1, user2) {
     const user1Interests = user1.interests;
     const user2Interests = user2.interests;
@@ -304,8 +308,8 @@ function rateUser(targetUserId, ratedUserId, action) {
         console.log(`${targetUser.name} liked ${ratedUser.name}`);
         
         // Both users get an ELO update (S = 1 for a like)
-        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 1);
-        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 0);
+        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 0);
+        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 1);
 
         // Update ELO ratings
         targetUser.eloRating = newTargetElo;
@@ -316,8 +320,8 @@ function rateUser(targetUserId, ratedUserId, action) {
         console.log(`${targetUser.name} disliked ${ratedUser.name}`);
         
         // Both users get an ELO update (S = 0 for a dislike)
-        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 0);
-        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 1);
+        const newTargetElo = calculateNewEloRating(targetUser.eloRating, ratedUser.eloRating, 1);
+        const newRatedElo = calculateNewEloRating(ratedUser.eloRating, targetUser.eloRating, 0);
 
         // Update ELO ratings
         targetUser.eloRating = newTargetElo;
