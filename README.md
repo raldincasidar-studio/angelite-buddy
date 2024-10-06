@@ -1,7 +1,3 @@
-Here’s a detailed `README.md` for your project **Angelite Buddy**, the online dating app using the Collaborative Filtering Algorithm and Elo Rating Algorithm:
-
----
-
 # Angelite Buddy
 
 **Angelite Buddy** is an online dating app built using Nuxt.js 3. It incorporates collaborative filtering and Elo rating algorithms to recommend potential matches based on users' interests and interactions. The app is packaged with Capacitor, making it easily deployable as a cross-platform mobile app.
