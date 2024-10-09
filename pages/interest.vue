@@ -17,8 +17,7 @@
         v-model="drawer"
       >
         <v-list>
-            <v-list-item>Find Match</v-list-item>
-            <v-list-item @click="logout()">Logout</v-list-item>
+          <Sidenav></Sidenav>
         </v-list>
       </v-navigation-drawer>
 
@@ -42,6 +41,25 @@
             </v-list>
         </v-container>
       </v-main>
+      <v-bottom-navigation grow>
+        <v-btn to="/dashboard" shift>
+            <v-icon>mdi-heart-plus</v-icon>
+
+            <span>Find Match</span>
+        </v-btn>
+
+        <v-btn to="/chats">
+            <v-icon>mdi-chat</v-icon>
+
+            <span>Chats</span>
+        </v-btn>
+
+        <v-btn to="/matches">
+            <v-icon>mdi-heart-flash</v-icon>
+
+            <span>Matches</span>
+        </v-btn>
+        </v-bottom-navigation>
     </v-layout>
 </template>
 

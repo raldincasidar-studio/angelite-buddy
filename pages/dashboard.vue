@@ -15,8 +15,7 @@
         v-model="drawer"
       >
         <v-list>
-            <v-list-item>Find Match</v-list-item>
-            <v-list-item @click="logout()">Logout</v-list-item>
+            <Sidenav></Sidenav>
         </v-list>
       </v-navigation-drawer>
 
@@ -24,7 +23,7 @@
         
         <v-container>
             <h2 class="text-center my-5">Find your Match 💘</h2>
-            <v-card v-if="userRecommended">
+            <v-card v-if="userRecommended.id">
                 <v-img
                 :src="`/profile-picture.webp`"
                 class="align-end"
@@ -36,7 +35,7 @@
                 <v-card-title class="text-white">{{ userRecommended.lastname }}, {{ userRecommended.firstname }}</v-card-title>
                 </v-img>
                 <div class="pa-3 text-center">
-                    <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }} ({{ userRecommended.eloRating[interest] }} elo)</v-chip>
+                    <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }}</v-chip>
                 </div>
                 <v-card-text>
                     {{ userRecommended.description }}
@@ -69,6 +68,25 @@
             </div>
         </v-container>
       </v-main>
+      <v-bottom-navigation grow>
+        <v-btn to="/dashboard" shift>
+            <v-icon>mdi-heart-plus</v-icon>
+
+            <span>Find Match</span>
+        </v-btn>
+
+        <v-btn to="/chats">
+            <v-icon>mdi-chat</v-icon>
+
+            <span>Chats</span>
+        </v-btn>
+
+        <v-btn to="/matches">
+            <v-icon>mdi-heart-flash</v-icon>
+
+            <span>Matches</span>
+        </v-btn>
+        </v-bottom-navigation>
     </v-layout>
 </template>
 
@@ -504,6 +522,10 @@ async function rateUser(targetUserId, ratedUserId, action) {
             }
 
             await addDoc(collection(db, "matches"), matchData);
+            $toast.fire({
+                icon: 'success',
+                title: 'YOU HAVE A MATCH!'
+            })
         }
 
     } else if (action === "dislike") {
@@ -545,10 +567,5 @@ async function updateUserFirebase(user_id, json) {
 
 
 
-function logout() {
-    const router = useRouter();
-
-    router.replace('/')
-}
 
 </script>

@@ -9,45 +9,93 @@
         <v-toolbar-title>Matches</v-toolbar-title>
 
         <v-spacer></v-spacer>
-
-        <v-btn @click="saveSelected()" append-icon="mdi-chevron-right" :disabled="itemSelected.length < 5">Next</v-btn>
       </v-app-bar>
 
       <v-navigation-drawer
         v-model="drawer"
       >
         <v-list>
-            <v-list-item>Find Match</v-list-item>
-            <v-list-item @click="logout()">Logout</v-list-item>
+          <Sidenav></Sidenav>
         </v-list>
       </v-navigation-drawer>
 
       <v-main>
         
         <v-container>
-            <h3 class="my-3 mt-4">Chats</h3>
+            <h3 class="my-3 mt-4">Matches (10)</h3>
             
-            <div class="text-center my-10" v-if="itemSelected.length === 0">
-              <v-icon color="grey" class="my-4" size="50"> mdi-message-off </v-icon>
-              <h4 class="text-grey">No Chats yet</h4>
+            <div class="text-center my-10" v-if="matches.length < 1">
+              <v-icon color="grey" class="my-4" size="50"> mdi-heart-broken </v-icon>
+              <h4 class="text-grey">No Matches yet</h4>
+              <p class="ma-2 text-grey">Go find some friends and start chatting</p>
+              <v-btn class="mt-10" to="/dashboard" large variant="outlined" color="primary">Find Matches</v-btn>
             </div>
-            <div v-else>
-              <v-chip color="primary" class="ma-2" @click:close="itemSelected.includes(interest) ? itemSelected.splice(itemSelected.indexOf(interest), 1) : itemSelected.push(interest)" :prepend-icon="interest.props.prependIcon" size="large" closable v-for="interest in itemSelected">{{ interest.title }}</v-chip>
+            <div v-else class="d-flex flex-wrap">
+              <div class="w-50 pa-2" v-for="(person, i) in matches" :key="person.id">
+                <v-card>
+                  <v-img
+                  :src="`/profile-picture.webp`"
+                  class="align-end"
+                  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                  height="200px"
+                  cover
+                  >
+                  <v-card-subtitle class="text-white">{{ person.thePerson.age }}, {{ person.thePerson.gender }}</v-card-subtitle>
+                  <v-card-title class="text-white">{{ person.thePerson.lastname }}, {{ person.thePerson.firstname }}</v-card-title>
+                  </v-img>
+                  <div class="pa-3 text-center">
+                      <v-chip class="ma-1" v-for="(interest, i) in person.thePerson.interests" :key="i">{{ interest }}</v-chip>
+                  </div>
+                  <v-card-actions>
+                  
+
+                  <v-spacer></v-spacer>
+
+                  <v-btn
+                      @click="deleteMatch(person.id)"
+                      color="red"
+                      icon="mdi-close"
+                      size="large"
+                  ></v-btn>
+
+                  <v-btn
+                      @click="startChat(person.id)"
+                      color="blue"
+                      icon="mdi-chat"
+                      size="large"
+                  ></v-btn>
+                  <v-spacer></v-spacer>
+                  </v-card-actions>
+              </v-card>
+              </div>
             </div>
-            <h3 class="my-3 mt-4">Find Intersts that suits you</h3>
-            <v-list>
-              <v-list-item v-for="item in interestWIthoutSelected" :key="item.title" :prepend-icon="item.props.prependIcon" append-icon="mdi-plus" @click="itemSelected.push(item)">
-                {{ item.title }}
-              </v-list-item>
-            </v-list>
         </v-container>
       </v-main>
+      <v-bottom-navigation grow>
+        <v-btn to="/dashboard" shift>
+            <v-icon>mdi-heart-plus</v-icon>
+
+            <span>Find Match</span>
+        </v-btn>
+
+        <v-btn to="/chats">
+            <v-icon>mdi-chat</v-icon>
+
+            <span>Chats</span>
+        </v-btn>
+
+        <v-btn to="/matches">
+            <v-icon>mdi-heart-flash</v-icon>
+
+            <span>Matches</span>
+        </v-btn>
+        </v-bottom-navigation>
     </v-layout>
 </template>
 
 <script setup>
 import { useStorage} from '@vueuse/core'
-import { getFirestore, serverTimestamp, addDoc, collection, updateDoc, doc } from "firebase/firestore";
+import { getFirestore, serverTimestamp, addDoc, collection, updateDoc, deleteDoc, doc, getDocs, where, query } from "firebase/firestore";
 import { app } from '@/server/firebase';
 
 const db = getFirestore(app);
@@ -340,7 +388,7 @@ const interestWIthoutSelected = computed(() => {
 const userRecommended = ref({});
 
 onMounted( async () => {
-  
+  getMatches();
 } )
 
 const userStorage = useStorage('user', {});
@@ -385,6 +433,58 @@ async function saveSelected() {
   })
 
   useRouter().replace('/description');
+}
+
+const matches = ref([]);
+
+async function getMatches() {
+
+  // get docs from matches collection where user id is included in likedBy
+
+  const querySnapshot = await getDocs(query(collection(db, "matches"), where("likedBy", "array-contains", userStorage.value.id)));
+
+  const matchesList = [];
+
+  for (const docs of querySnapshot.docs) {
+    matchesList.push({ id: docs.id, ...docs.data(), thePerson: docs.data().users.find(user => user.id !== userStorage.value.id) });
+  }
+
+  matches.value = matchesList;
+
+  console.log(matches.value);
+
+
+
+}
+
+async function deleteMatch(id) {
+  // delete match from firebase
+
+  await deleteDoc(doc(db, "matches", id));
+
+  useNuxtApp().$toast.fire({
+    icon: "success",
+    title: 'Deleted!'
+  })
+
+  getMatches();
+}
+
+async function startChat(match_id) {
+
+  const parentDocRef = doc(db, "matches", match_id);
+
+  const chatSubcollectionRef = collection(parentDocRef, "chats");
+
+  await addDoc(chatSubcollectionRef, {
+    messages: 'Hello!',
+    created_at: serverTimestamp(),
+    updated_at: serverTimestamp(),
+    createdBy: userStorage.value.id,
+    userCreatedBy: userStorage.value,
+  });
+
+  useRouter().replace('/chats/' + match_id);
 }
 
 
