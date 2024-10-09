@@ -23,7 +23,7 @@
         
         <v-container>
             <h2 class="text-center my-5">Find your Match 💘</h2>
-            <v-card v-if="userRecommended.id">
+            <v-card v-if="userRecommended?.id">
                 <v-img
                 :src="`/profile-picture.webp`"
                 class="align-end"
@@ -458,6 +458,8 @@ function recommendUser(targetUserId, users) {
 //     return Math.round(newRating); // Round the result to keep it clean
 // }
 
+const {$toast} = useNuxtApp();
+
 function calculateNewEloRating(userRating, opponentRating, score, K = 32) {
     const expectedScore = 1 / (1 + Math.pow(10, (opponentRating - userRating) / 400));
     const newRating = userRating + K * (score - expectedScore);
@@ -518,6 +520,7 @@ async function rateUser(targetUserId, ratedUserId, action) {
                 users: [targetUser, ratedUser],
                 dislikedBy: [],
                 interests: ratedUser.interests,
+                chatStarted: false,
                 date_added: serverTimestamp()
             }
 

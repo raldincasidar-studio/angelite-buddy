@@ -441,7 +441,7 @@ async function getMatches() {
 
   // get docs from matches collection where user id is included in likedBy
 
-  const querySnapshot = await getDocs(query(collection(db, "matches"), where("likedBy", "array-contains", userStorage.value.id)));
+  const querySnapshot = await getDocs(query(collection(db, "matches"), where("likedBy", "array-contains", userStorage.value.id), where('chatStarted', '==', false)));
 
   const matchesList = [];
 
@@ -473,6 +473,10 @@ async function deleteMatch(id) {
 async function startChat(match_id) {
 
   const parentDocRef = doc(db, "matches", match_id);
+  
+  await updateDoc(parentDocRef, {
+    chatStarted: true,
+  });
 
   const chatSubcollectionRef = collection(parentDocRef, "chats");
 

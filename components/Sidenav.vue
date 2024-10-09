@@ -1,6 +1,6 @@
 <template>
     <v-list-item to="/dashboard" link>Find Match</v-list-item>
-    <v-list-item to="/matches" link>Matches</v-list-item>
+    <!-- <v-list-item to="/matches" link>S</v-list-item> -->
     <v-list-item @click="logout()">Logout</v-list-item>
 </template>
 

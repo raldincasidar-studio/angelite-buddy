@@ -6,7 +6,7 @@
       >
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
-        <v-toolbar-title>{{ chatName?.thePerson?.firstname + ' ' + chatName?.thePerson?.lastname || 'Loading ....' }}</v-toolbar-title>
+        <v-toolbar-title>{{ chatName?.thePerson ? chatName?.thePerson?.firstname + ' ' + chatName?.thePerson?.lastname : 'Loading ....' }}</v-toolbar-title>
 
         <v-spacer></v-spacer>
       </v-app-bar>
@@ -40,7 +40,7 @@
         </v-container>
       </v-main>
       <v-bottom-navigation grow>
-          <v-text-field label="Your Message ..." v-model="messageText" @keyup.enter="sendMessage()" size="large" append-icon="mdi-send" class="pr-5"></v-text-field>
+          <v-text-field label="Your Message ..." v-model="messageText" @keyup.enter="sendMessage()" size="large" append-icon="mdi-send" @click:append="sendMessage()" class="pr-5"></v-text-field>
         </v-bottom-navigation>
     </v-layout>
 </template>
