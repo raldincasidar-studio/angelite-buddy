@@ -6,7 +6,7 @@
       >
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
-        <v-toolbar-title>{{ chatName?.thePerson ? chatName?.thePerson?.firstname + ' ' + chatName?.thePerson?.lastname : 'Loading ....' }}</v-toolbar-title>
+        <v-toolbar-title>{{ chatName?.thePerson ? '@' + chatName?.thePerson?.username : 'Loading ....' }}</v-toolbar-title>
 
         <v-spacer></v-spacer>
       </v-app-bar>

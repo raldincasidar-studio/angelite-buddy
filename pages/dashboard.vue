@@ -22,7 +22,7 @@
       <v-main>
         
         <v-container>
-            <h2 class="text-center my-5">Find your Match 💘</h2>
+            <h2 class="text-center my-5">Find your Match</h2>
             <v-card v-if="userRecommended?.id">
                 <v-img
                 :src="`/profile-picture.webp`"
@@ -32,7 +32,7 @@
                 cover
                 >
                 <v-card-subtitle class="text-white">{{ userRecommended.age }}, {{ userRecommended.gender }}</v-card-subtitle>
-                <v-card-title class="text-white">{{ userRecommended.lastname }}, {{ userRecommended.firstname }}</v-card-title>
+                <v-card-title class="text-white">@{{ userRecommended.username }}</v-card-title>
                 </v-img>
                 <div class="pa-3 text-center">
                     <v-chip v-for="(interest, index) in userRecommended.interests" :key="index" class="ma-1">{{ interest }}</v-chip>
@@ -62,7 +62,7 @@
                 </v-card-actions>
             </v-card>
             <div class="ma-4 my-15 text-center" v-else>
-              <v-icon size="100" color="grey">mdi-account-heart</v-icon>
+              <v-icon size="100" color="grey">mdi-account-remove</v-icon>
               <h2 class="text-grey mt-5">No other users</h2>
               <p class="text-grey my-4">More users are yet to come. Comeback again to see who's for you😉</p>
             </div>
@@ -70,7 +70,7 @@
       </v-main>
       <v-bottom-navigation grow>
         <v-btn to="/dashboard" shift>
-            <v-icon>mdi-heart-plus</v-icon>
+            <v-icon>mdi-account-multiple-plus</v-icon>
 
             <span>Find Match</span>
         </v-btn>
@@ -82,7 +82,7 @@
         </v-btn>
 
         <v-btn to="/matches">
-            <v-icon>mdi-heart-flash</v-icon>
+            <v-icon>mdi-account-multiple</v-icon>
 
             <span>Matches</span>
         </v-btn>

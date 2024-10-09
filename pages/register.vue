@@ -15,8 +15,8 @@
         <v-text-field v-model="firstname" label="First Name"></v-text-field>
         <v-text-field v-model="lastname" label="Last Name"></v-text-field>
         <v-text-field v-model="age" label="Age"></v-text-field>
-        <v-select :items="['Male', 'Female']" v-model="gender" label="Gender"></v-select>
-        <v-text-field v-model="location" label="Location"></v-text-field>
+        <v-select :items="['Male', 'Female', 'Other']" v-model="gender" label="Gender"></v-select>
+        <v-text-field v-model="courses" label="Courses"></v-text-field>
         <v-text-field v-model="email" label="Email"></v-text-field>
         <v-text-field v-model="username" label="Username"></v-text-field>
         <v-text-field v-model="password" label="Password" type="password"></v-text-field>
@@ -43,7 +43,7 @@ const firstname = ref('');
 const lastname = ref('');
 const age = ref('');
 const gender = ref('');
-const location = ref('');
+const courses = ref('');
 const email = ref('');
 const username = ref('');
 const password = ref('');
@@ -62,12 +62,12 @@ async function login() {
         docsRef = await addDoc(collection(db, "users"), {
             firstname: firstname.value,
             lastname: lastname.value,
+            courses: courses.value,
             email: email.value,
             username: username.value,
             password: md5(password.value),
             age: age.value,
             gender: gender.value,
-            location: location.value,
             interests: [],
             eloRating: {},
             likedBy: [],

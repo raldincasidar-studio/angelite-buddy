@@ -43,7 +43,7 @@
       </v-main>
       <v-bottom-navigation grow>
         <v-btn to="/dashboard" shift>
-            <v-icon>mdi-heart-plus</v-icon>
+            <v-icon>mdi-account-multiple-plus</v-icon>
 
             <span>Find Match</span>
         </v-btn>
@@ -55,7 +55,7 @@
         </v-btn>
 
         <v-btn to="/matches">
-            <v-icon>mdi-heart-flash</v-icon>
+            <v-icon>mdi-account-multiple</v-icon>
 
             <span>Matches</span>
         </v-btn>
@@ -72,29 +72,22 @@ const db = getFirestore(app);
 
 const drawer =  ref(false)
 const items = ref([
-    { title: 'Hiking', value: 'hiking', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-hiking' } },
-    { title: 'Cooking', value: 'cooking', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-chef-hat' } },
-    { title: 'Reading', value: 'reading', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-book' } },
-    { title: 'Traveling', value: 'traveling', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-airplane' } },
-    { title: 'Gaming', value: 'gaming', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-gamepad-variant' } },
-    { title: 'Photography', value: 'photography', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-camera' } },
-    { title: 'Painting', value: 'painting', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-paint' } },
-    { title: 'Yoga', value: 'yoga', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-yoga' } },
-    { title: 'Dancing', value: 'dancing', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-dance' } },
-    { title: 'Traveling', value: 'traveling', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-airplane' } },
-    { title: 'Swimming', value: 'swimming', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-swim' } },
-    { title: 'Fitness', value: 'fitness', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-dumbbell' } },
-    { title: 'Skateboarding', value: 'skateboarding', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-skateboarding' } },
-    { title: 'Music', value: 'music', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-music' } },
-    { title: 'Movies', value: 'movies', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-filmstrip' } },
-    { title: 'Writing', value: 'writing', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-pencil' } },
-    { title: 'Golf', value: 'golf', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-golf' } },
-    { title: 'Football', value: 'football', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-soccer' } },
-    { title: 'Basketball', value: 'basketball', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-basketball' } },
-    { title: 'Surfing', value: 'surfing', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-surfing' } },
-    { title: 'Skiing', value: 'skiing', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-skiing' } },
-    { title: 'Biking', value: 'biking', props: { appendIcon: 'mdi-plus', prependIcon: 'mdi-bike' } },
-  ])
+    { "title": "Programming", "value": "programming", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-code-braces" } },
+    { "title": "Web Development", "value": "web-development", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-web" } },
+    { "title": "Mobile App Development", "value": "mobile-app-development", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-cellphone" } },
+    { "title": "UI/UX Design", "value": "ui-ux-design", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-palette" } },
+    { "title": "Database Management", "value": "database-management", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-database" } },
+    { "title": "Network Administration", "value": "network-administration", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-router" } },
+    { "title": "Cyber Security", "value": "cyber-security", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-shield-lock" } },
+    { "title": "Cloud Computing", "value": "cloud-computing", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-cloud" } },
+    { "title": "Machine Learning/AI", "value": "machine-learning-ai", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-brain" } },
+    { "title": "Data Analysis", "value": "data-analysis", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-chart-bar" } },
+    { "title": "DevOps", "value": "devops", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-tools" } },
+    { "title": "Software Testing", "value": "software-testing", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-checkbox-marked" } },
+    { "title": "IT Support & Troubleshooting", "value": "it-support-troubleshooting", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-help-circle" } },
+    { "title": "Animation", "value": "animation", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-animation" } },
+    { "title": "Game Development", "value": "game-development", "props": { "appendIcon": "mdi-plus", "prependIcon": "mdi-gamepad" } }
+])
 const itemSelected = ref([
   ])
 

@@ -22,10 +22,10 @@
       <v-main>
         
         <v-container>
-            <h3 class="my-3 mt-4">Matches (10)</h3>
+            <h3 class="my-3 mt-4">Matches ({{ matches.length }})</h3>
             
             <div class="text-center my-10" v-if="matches.length < 1">
-              <v-icon color="grey" class="my-4" size="50"> mdi-heart-broken </v-icon>
+              <v-icon color="grey" class="my-4" size="50"> mdi-emoticon-sad </v-icon>
               <h4 class="text-grey">No Matches yet</h4>
               <p class="ma-2 text-grey">Go find some friends and start chatting</p>
               <v-btn class="mt-10" to="/dashboard" large variant="outlined" color="primary">Find Matches</v-btn>
@@ -73,7 +73,7 @@
       </v-main>
       <v-bottom-navigation grow>
         <v-btn to="/dashboard" shift>
-            <v-icon>mdi-heart-plus</v-icon>
+            <v-icon>mdi-account-multiple-plus</v-icon>
 
             <span>Find Match</span>
         </v-btn>
@@ -85,7 +85,7 @@
         </v-btn>
 
         <v-btn to="/matches">
-            <v-icon>mdi-heart-flash</v-icon>
+            <v-icon>mdi-account-multiple</v-icon>
 
             <span>Matches</span>
         </v-btn>

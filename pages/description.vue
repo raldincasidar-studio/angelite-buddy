@@ -32,7 +32,7 @@
       </v-main>
       <v-bottom-navigation grow>
         <v-btn to="/dashboard" shift>
-            <v-icon>mdi-heart-plus</v-icon>
+            <v-icon>mdi-account-multiple-plus</v-icon>
 
             <span>Find Match</span>
         </v-btn>
@@ -44,7 +44,7 @@
         </v-btn>
 
         <v-btn to="/matches">
-            <v-icon>mdi-heart-flash</v-icon>
+            <v-icon>mdi-account-multiple</v-icon>
 
             <span>Matches</span>
         </v-btn>
