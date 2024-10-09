@@ -23,7 +23,14 @@
 </template>
 
 <script setup>
+import { getFirestore, serverTimestamp, addDoc, collection, getDocs, where, query } from "firebase/firestore";
+import { app } from '@/server/firebase';
+import { md5 } from 'js-md5';
+import { useStorage } from '@vueuse/core';
 
+const db = getFirestore(app);
+const { $toast } = useNuxtApp();
+const userStorage = useStorage('user', {});
 const router = useRouter();
 
 const username = ref('');
@@ -31,12 +38,29 @@ const password = ref('');
 
 async function login() {
 
-    if (username.value == "admin" && password.value == "admin") {
-        router.replace('/dashboard');
+    if (username.value == "" || password.value == "") {
+        $toast.fire({
+            icon: "error",
+            title: 'Please enter username and password',
+        })
         return;
     }
 
-    alert("Invalid username or password");
+    // fire on collection "user" where username is username.value and password is md5 password.value and return a doc if it has found 1
+    const querySnapshot = await getDocs(query(collection(db, "users"), where("username", "==", username.value), where("password", "==", md5(password.value))));
+
+    if (querySnapshot.size < 1) {
+        $toast.fire({
+            icon: "error",
+            title: 'Invalid username or password',
+        })
+        return;
+    }
+
+    const userData = { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+
+    userStorage.value = userData;
+    router.replace('/dashboard');
 }
 
 </script>

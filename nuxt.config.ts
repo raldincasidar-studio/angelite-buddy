@@ -18,6 +18,10 @@ export default defineNuxtConfig({
     //...
     '@vueuse/nuxt',
   ],
+
+  plugins: ['~/plugins/swal.js'],
+
+  
   vite: {
     vue: {
       template: {
